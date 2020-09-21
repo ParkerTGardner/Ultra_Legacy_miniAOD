@@ -1,0 +1,8 @@
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_1.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_10.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_100.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_101.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_102.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_103.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_104.root
+/storage1/osg/stage_out/store/user/pgardner/MINIAOD_UL_D_ak8/JetHT/crab_20200916_161924/200916_141930/0000/output_UL_D_ak8_105.root

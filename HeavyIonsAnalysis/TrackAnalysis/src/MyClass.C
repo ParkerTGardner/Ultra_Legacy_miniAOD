@@ -1,6 +1,6 @@
 #define MyClass_cxx
-#include "MyClass.h"
-
+#include "include/MyClass.h"
+#include "include/Timer.h"
 #include <TStyle.h>
 #include "TH1D.h"
 #include "TH2D.h"
@@ -18,7 +18,11 @@
 #include "TCutG.h"
 #include <numeric>
 #include <iomanip>
-#include "coordinateTools.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include "include/coordinateTools.h"
 
 using TMath::ATan;
 using TMath::Exp;
@@ -100,7 +104,12 @@ bool F_trigpassROTATED(
 	return true;
 }
 
-void MyClass::Loop(){
+void MyClass::Loop(int job){
+    //timing information
+    Timer timer = Timer();
+    timer.Start();
+    timer.StartSplit("Start Up");
+
 
     TH1::SetDefaultSumw2(kFALSE);
     TH2::SetDefaultSumw2(kFALSE);
@@ -126,10 +135,6 @@ void MyClass::Loop(){
 	TH1D* hDau_Kin_Eta   = new TH1D( "hEta"   ,"hEta"   , bin_Eta , low_Eta_Bin   , high_Eta_Bin);
 
 	TH2D* hEtaPhi_dd_Dau_Jet = new TH2D("hEtaPhi_dd_Dau_Jet","hEtaPhi_dd_Dau_Jet", 50, -1 , 1 , 50 , -1  , 1);
-
-
-
-
 
 
 /*
@@ -177,30 +182,48 @@ void MyClass::Loop(){
 	//-------------------------------------------------------------------MAIN_LOOPS
 	//-------------------------------------------------------------------MAIN_LOOPS
 
-	Long64_t nentries = fChain->GetEntriesFast();
-    cout<<"*****************"<<endl;
-    cout<<"*****************"<<endl;
-    cout<<"Total Entries is:"<<endl;
-    cout<< nentries <<endl;
-    cout<<""<<endl;
-    cout<<"Run Length is:"<<endl;
-    cout<< RUNLENGTH << " ( " << floor(100*RUNLENGTH/nentries) << "% )" <<endl;
-    long int progressmeter1 = floor(RUNLENGTH/400);
 
     
-	Long64_t nbytes = 0, nb = 0;
-	for (Long64_t ievent=0; ievent <RUNLENGTH; ievent ++){
+     std::cout << "Starting event loop" << std::endl; 
+     std::cout << "Total Number of Files in this Job: " << fileList.size() << std::endl;
+     for(int f = 0; f<fileList.size(); f++){
+        timer.StartSplit("Opening Files");
+        fFile = TFile::Open(fileList.at(f).c_str(),"read");
+        TTree *tree = (TTree*)fFile->Get("analyzer/trackTree"); 
+        Init(tree);
+	
+        std::cout << "File " << f+1 << " out of " << fileList.size() << std::endl;
+        Long64_t nbytes = 0, nb = 0;
+        
+    Long64_t nentries = fChain->GetEntriesFast();
+	
+    //cout<<"*****************"<<endl;
+    //cout<<"*****************"<<endl;
+    cout<<"Total Entries is:"<<endl;
+    cout<< nentries <<endl;
+    //cout<<""<<endl;
+    //cout<<"Run Length is:"<<endl;
+    //cout<< RUNLENGTH << " ( " << floor(100*RUNLENGTH/nentries) << "% )" <<endl;
+    //long int progressmeter1 = floor(RUNLENGTH/400);
+
+
+	for (Long64_t ievent=0; ievent <nentries; ievent ++){
+	//for (Long64_t ievent=0; ievent <RUNLENGTH; ievent ++){
+	        timer.StartSplit("Loading Events");
 		Long64_t jevent = LoadTree(ievent);
 		//if (jevent < 0) break;
 		nb = fChain->GetEntry(ievent);   nbytes += nb;
 
 		//if (Cut(ievent) < 0) continue;
 
-		float percentdone =(float)100*(float)ievent/(float)RUNLENGTH;
-		if(ievent%progressmeter1==0) cout<< percentdone  << setprecision(2) << fixed  <<endl;
+		//float percentdone =(float)100*(float)ievent/(float)RUNLENGTH;
+		//if(ievent%progressmeter1==0) cout<< percentdone  << setprecision(2) << fixed  <<endl;
+		if(ievent%1000==0) cout<< ievent << "/" << nentries  <<endl;
 
+                timer.StartSplit("Event Selection");
 		if(!F_eventpass(jetPt, jetN, jetPtCut)) continue;
 
+                timer.StartSplit("Jet Selection");
 		for(int ijet=0; ijet<jetN; ijet++){
 			if( !F_jetpass(jetEta, jetPt, ijet, jetPtCut)) continue;
 			Pass_Trig_Jet +=1;
@@ -217,6 +240,7 @@ void MyClass::Loop(){
 				Ntrig=Ntrig+1;
 			}
 
+                        timer.StartSplit("Track Loops");
 			for(long int  XXtrk=0;XXtrk < NNtrk; XXtrk++ ){
                                 if((*dau_chg)[ijet][XXtrk] == 0) continue;
 
@@ -290,10 +314,15 @@ void MyClass::Loop(){
 			}
 		}
 	}
+    
+      fFile->Close();
+    }
 
+        timer.StartSplit("EndJob");
 	cout << "skipper is: " << skipper <<endl;
 	cout << "tripper is: " << tripper <<endl;
 
+	//int backMult =1;
 	int backMult =8;
 	for(int wtrk = 1; wtrk < trackbin+1; wtrk++){
 		for(int wppt = 1; wppt < ptbin+1; wppt++){
@@ -326,14 +355,13 @@ void MyClass::Loop(){
 		}
 	}
 
-
     hDau_Kin_WRTJ_Eta->Scale(1./Pass_Trig_Jet);
     hDau_Kin_Eta->Scale(1./Pass_Trig_Jet);
     
     hDau_Kin_WRTJ_Eta->Scale(1./( hDau_Kin_WRTJ_Eta->GetXaxis()->GetBinWidth(3)  ));
     hDau_Kin_Eta->Scale(1./(           hDau_Kin_Eta->GetXaxis()->GetBinWidth(3)  ));
 
-	TFile* fS_temp = new TFile("narrow_ak8.root", "recreate");
+	TFile* fS_temp = new TFile(Form("unmergedOutputs/narrow_ak8_job%d.root",job), "recreate");
 	for(int wtrk =1; wtrk <trackbin+1; wtrk++){
 		for(int wppt =1; wppt <ptbin+1; wppt++){
 			hSignal[wtrk-1][wppt-1]->Write(Form("hSig_%d_%d",wtrk,wppt));
@@ -435,4 +463,56 @@ void MyClass::Loop(){
 
         }
     }*/
+
+    timer.Stop();
+    timer.Report();
+
+}
+
+
+
+//Code enters execution here
+int main(int argc, const char* argv[])
+{
+  if(argc != 4)
+  {
+    std::cout << "Usage: Z_mumu_Channel <fileList> <jobNumber> <nJobs>" << std::endl;
+    return 1;
+  }  
+
+
+  //read input parameters
+  std::string fList = argv[1];
+  std::string buffer;
+  std::vector<std::string> listOfFiles;
+  std::ifstream inFile(fList.data());
+ 
+  int job = (int)std::atoi(argv[2]);
+  int nJobs = (int)std::atoi(argv[3]);
+
+
+  //read the file list and spit it into a vector of strings based on how the parallelization is to be done
+  //each vector is a separate subset of the fileList based on the job number
+  if(!inFile.is_open())
+  {
+    std::cout << "Error opening jet file. Exiting." <<std::endl;
+    return 1;
+  }
+  else
+  {
+    int line = 0;
+    while(true)
+    {
+      inFile >> buffer;
+      if(inFile.eof()) break;
+      if( line%nJobs == job) listOfFiles.push_back(buffer);
+      line++;
+    }
+  }
+
+  //create the MyClass Object
+  MyClass m = MyClass(listOfFiles);
+  m.Loop(job); 
+
+  return 0; 
 }

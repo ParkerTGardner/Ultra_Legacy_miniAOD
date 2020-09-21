@@ -13,20 +13,20 @@
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
+#include <vector>
+#include <string>
+
+using namespace std;
 
 class MyClass {
 public :
+   TFile * fFile;
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
-// Fixed size dimensions of array or collections stored in the TTree if any.
+   std::vector<std::string> fileList;
+
+   // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
    Int_t           nRun;
@@ -112,40 +112,38 @@ public :
    TBranch        *b_dau_vp_difY;   //!
    TBranch        *b_dau_vp_difX;   //!
 
-   MyClass(TTree *tree=0);
+   MyClass(std::vector<std::string> _fileList);
    virtual ~MyClass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual void     Loop(int job);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
 
-#endif
-
-#ifdef MyClass_cxx
-MyClass::MyClass(TTree *tree) : fChain(0) 
+MyClass::MyClass(std::vector<std::string> _fileList) : fChain(0)
+//MyClass::MyClass(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("total_output_ak8.root");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("total_output_ak8.root");
-      }
-      TDirectory * dir = (TDirectory*)f->Get("total_output_ak8.root:/analyzer");
-      dir->GetObject("trackTree",tree);
-
-   }
-   Init(tree);
+//   if (tree == 0) {
+//      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("total_output_ak8.root");
+//      if (!f || !f->IsOpen()) {
+//         f = new TFile("total_output_ak8.root");
+//      }
+//      TDirectory * dir = (TDirectory*)f->Get("total_output_ak8.root:/analyzer");
+//      dir->GetObject("trackTree",tree);
+//
+//   }
+    fileList = _fileList;
 }
 
 MyClass::~MyClass()
 {
-   if (!fChain) return;
-   delete fChain->GetCurrentFile();
+   //if (!fChain) return;
+   //delete fChain->GetCurrentFile();
 }
 
 Int_t MyClass::GetEntry(Long64_t entry)
