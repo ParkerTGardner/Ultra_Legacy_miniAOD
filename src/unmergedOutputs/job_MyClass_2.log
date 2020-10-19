@@ -1,0 +1,156 @@
+Starting event loop
+Total Number of Files in this Job: 2
+File 1 out of 2
+Total Entries is:
+26731
+0/26731
+1000/26731
+2000/26731
+3000/26731
+4000/26731
+5000/26731
+6000/26731
+7000/26731
+8000/26731
+9000/26731
+10000/26731
+11000/26731
+12000/26731
+13000/26731
+14000/26731
+15000/26731
+16000/26731
+17000/26731
+18000/26731
+19000/26731
+20000/26731
+21000/26731
+22000/26731
+23000/26731
+24000/26731
+25000/26731
+26000/26731
+File 2 out of 2
+Total Entries is:
+24577
+0/24577
+1000/24577
+2000/24577
+3000/24577
+4000/24577
+5000/24577
+6000/24577
+7000/24577
+8000/24577
+9000/24577
+10000/24577
+11000/24577
+12000/24577
+13000/24577
+14000/24577
+15000/24577
+16000/24577
+17000/24577
+18000/24577
+19000/24577
+20000/24577
+21000/24577
+22000/24577
+23000/24577
+24000/24577
+skipper is: 25289280
+tripper is: 27695238
+ppt is 1 and trk is 1
+***
+hSig ent are: 2110132 ... and hBack ent are: 2.11094e+07
+***
+ppt is 2 and trk is 1
+***
+hSig ent are: 44892 ... and hBack ent are: 449570
+***
+ppt is 3 and trk is 1
+***
+hSig ent are: 28476 ... and hBack ent are: 285690
+***
+ppt is 1 and trk is 2
+***
+hSig ent are: 18214500 ... and hBack ent are: 1.82156e+08
+***
+ppt is 2 and trk is 2
+***
+hSig ent are: 821408 ... and hBack ent are: 8.21682e+06
+***
+ppt is 3 and trk is 2
+***
+hSig ent are: 942584 ... and hBack ent are: 9.42797e+06
+***
+ppt is 1 and trk is 3
+***
+hSig ent are: 18901752 ... and hBack ent are: 1.89021e+08
+***
+ppt is 2 and trk is 3
+***
+hSig ent are: 1413160 ... and hBack ent are: 1.41338e+07
+***
+ppt is 3 and trk is 3
+***
+hSig ent are: 2074856 ... and hBack ent are: 2.07526e+07
+***
+ppt is 1 and trk is 4
+***
+hSig ent are: 7143720 ... and hBack ent are: 7.14448e+07
+***
+ppt is 2 and trk is 4
+***
+hSig ent are: 688644 ... and hBack ent are: 6.888e+06
+***
+ppt is 3 and trk is 4
+***
+hSig ent are: 1111304 ... and hBack ent are: 1.11189e+07
+***
+ppt is 1 and trk is 5
+***
+hSig ent are: 1293264 ... and hBack ent are: 1.29348e+07
+***
+ppt is 2 and trk is 5
+***
+hSig ent are: 142508 ... and hBack ent are: 1.42683e+06
+***
+ppt is 3 and trk is 5
+***
+hSig ent are: 270528 ... and hBack ent are: 2.70767e+06
+***
+ppt is 1 and trk is 6
+***
+hSig ent are: 134540 ... and hBack ent are: 1.34676e+06
+***
+ppt is 2 and trk is 6
+***
+hSig ent are: 15972 ... and hBack ent are: 160400
+***
+ppt is 3 and trk is 6
+***
+hSig ent are: 30520 ... and hBack ent are: 305256
+***
+ppt is 1 and trk is 7
+***
+hSig ent are: 6612 ... and hBack ent are: 66306
+***
+ppt is 2 and trk is 7
+***
+hSig ent are: 840 ... and hBack ent are: 8556
+***
+ppt is 3 and trk is 7
+***
+hSig ent are: 264 ... and hBack ent are: 2652
+***
+Time: 86.4516 seconds.
+Split Times (in seconds)...
+Start Up        0          (0 %)
+Opening Files   0.0111     (0.0129 %)
+Loading Events  43.2       (50 %)
+Event Selection 4.38       (5.07 %)
+Jet Selection   0.00922    (0.0107 %)
+Track Loops     21.1       (24.4 %)
+EndJob          17.8       (20.5 %)
+Split Total: 86.4s
