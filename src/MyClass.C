@@ -9,7 +9,7 @@
 // to open a fold: esc and zo 
 // to close a fold: esc and zc
 
-//this a change
+//this a change #2
 
 #define MyClass_cxx
 #include "include/MyClass.h"
@@ -42,13 +42,13 @@ using TMath::Exp;
 
 //Quick change:
 
-const int   trackbin                    = 6; 
-const int   ptbin		                = 13;
+const int   trackbin                    = 8; 
+const int   ptbin		                = 15;
 const float ptmin                       = 0.0;
 const float ptmax                       = 4.0;
-const int   trackbinbounds[trackbin]    = {85,86,87,88,89,90}; 
-const float ptbinbounds_lo[ptbin]       = {0.0, 0.3, 0.5, 1.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.5, 0.5, 1.0, 1.0}; 
-const float ptbinbounds_hi[ptbin]       = {3.0, 3.0, 3.0, 3.0, 1.0, 2.0, 4.0, 2.0, 4.0, 2.0, 4.0, 2.0, 4.0}; 
+const int   trackbinbounds[trackbin]    = {85,86,87,88,89,90,91,92}; 
+const float ptbinbounds_lo[ptbin]       = {0.0, 0.3, 0.4, 0.5, 0.6, 1.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.5, 0.5, 1.0, 1.0}; 
+const float ptbinbounds_hi[ptbin]       = {3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 1.0, 2.0, 4.0, 2.0, 4.0, 2.0, 4.0, 2.0, 4.0}; 
 const float ptbinmin                    = 0.0;
 const float ptbinmax                    = 4.0;
 
@@ -59,9 +59,11 @@ const float ptbinmax                    = 4.0;
     const int           asize=70;
     const long int      bsize=1000;
     const double        PI = 3.14159265359;
-    const int           DeltaPBin =32;
-    const float         etabound  =6;
-    const int           DeltaEBin =40;//(2*etabound)/(0.3);
+    const float         EtaBW = 0.3;
+    const float         PhiBW = TMath::Pi()/16;
+    //const int           DeltaPBin =32;
+    //const float         etabound  =6;
+    //const int           DeltaEBin =40;//(2*etabound)/(0.3);
     const int bin_WRTJ_Eta        = 150;
     const int low_WRTJ_Eta_Bin  =  0;
     const int high_WRTJ_Eta_Bin = 10;
@@ -77,7 +79,7 @@ const float ptbinmax                    = 4.0;
     const int LB2 = -15;
     const int LB1 = -1;
     const double HB2pi = 2*PI;
-    const int HB2 = 15;
+    const int HB2 = 2;
     const int HB1 = 1;
     const double HB15pi = 1.5*PI;
     const int HB20 = 20;
@@ -143,11 +145,13 @@ void MyClass::Loop(int job){
 
     //Initializing Histograms
 
-        TH2D* hPairs   = new TH2D("hPairs","hPairs", ptbin, 0, ptbin, trackbin,0,trackbin);
+        TH2D* hPairs   = new TH2D("hPairs","hPairs",  trackbin,0,trackbin, ptbin, 0, ptbin);
 
         TH1D* hEvent_Pass   = new TH1D("hEvent_Pass","hEvent_Pass", 1,LB0,1);
-
-        TH1D* hPass_Trig_Jet[trackbin];
+        TH1D* hEvent_Fail   = new TH1D("hEvent_Fail","hEvent_Fail", 1,LB0,1);
+        TH1D* hJet_Pass     = new TH1D("hJet_Pass"  ,"hJet_Pass"  , trackbin,LB0,trackbin);
+        TH1D* hJet_Fail     = new TH1D("hJet_Fail"  ,"hJet_Fail"  , bin120,LB0,bin120);
+        TH1D* hMult_Fail    = new TH1D("hMult_Fail" ,"hMult_Fail" , bin120,LB0,bin120);
 
         TH1D* hJet_Kin_Eta[trackbin];  
         TH1D* hJet_Kin_Phi[trackbin];  
@@ -180,9 +184,8 @@ void MyClass::Loop(int job){
 
     //Defining Histograms
 
-    for(int wtrk = 1; wtrk<trackbin+1; wtrk++){
+   for(int wtrk = 1; wtrk<trackbin+1; wtrk++){
 
-        hPass_Trig_Jet[wtrk-1] = new TH1D(Form("hPass_Trig_Jet_%d",wtrk),Form("hPass_Trig_Jet_%d",wtrk)   , 1,0,1);
         hJet_Kin_Eta[wtrk-1]    = new TH1D(Form("hJet_Kin_Eta_%d",wtrk),Form("hJet_Kin_Eta_%d",wtrk)              ,bin1  , LB2   , HB2);
         hJet_Kin_Phi[wtrk-1]    = new TH1D(Form("hJet_Kin_Phi_%d",wtrk),Form("hJet_Kin_Phi_%d",wtrk)              ,bin1  , LB2pi , HB2pi);
 
@@ -190,15 +193,16 @@ void MyClass::Loop(int job){
         hN_ChgDAUvsJPT[wtrk-1]      = new TH2D( Form("hN_ChgDAUvsJPT_%d",wtrk),  Form("hN_ChgDAUvsJPT_%d",wtrk), bin120 , LB0 , HB120 , bin100 , LB500 , HB4000);
 
         for(int wppt = 1; wppt<ptbin+1; wppt++){
-            hBckrnd[wtrk-1][wppt-1]             = new TH2D(Form("hBckrnd_trk_%d_ppt_%d",wtrk,wppt) ,Form("hBckrnd_trk_%d_ppt_%d",wtrk,wppt) , DeltaEBin, -etabound   , etabound    , DeltaPBin, -0.5*PI  , HB15pi);
-            hSignal[wtrk-1][wppt-1]             = new TH2D(Form("hSignal_trk_%d_ppt_%d",wtrk,wppt) ,Form("hSignal_trk_%d_ppt_%d",wtrk,wppt) , DeltaEBin, -etabound   , etabound    , DeltaPBin, -0.5*PI  , HB15pi);
+
+            hBckrnd[wtrk-1][wppt-1]             = new TH2D(Form("hBckrnd_trk_%d_ppt_%d",wtrk,wppt) ,Form("hBckrnd_trk_%d_ppt_%d",wtrk,wppt) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
+            hSignal[wtrk-1][wppt-1]             = new TH2D(Form("hSignal_trk_%d_ppt_%d",wtrk,wppt) ,Form("hSignal_trk_%d_ppt_%d",wtrk,wppt) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
 
             hEPDraw[wtrk-1][wppt-1]             = new TH2D(Form("hEPDraw_trk_%d_ppt_%d",wtrk,wppt) ,Form("hEPDraw_trk_%d_ppt_%d",wtrk,wppt) , EPD_xb   , EPD_xlo, EPD_xhi , EPD_yb      , EPD_ylo    , EPD_yhi);
             hEPDrawMinus[wtrk-1][wppt-1]        = new TH2D(Form("hEPDrawMinus_trk_%d_ppt_%d",wtrk,wppt) ,Form("hEPDrawMinus_trk_%d_ppt_%d",wtrk,wppt) , EPD_xb   , EPD_xlo, EPD_xhi , EPD_yb      , EPD_ylo    , EPD_yhi);
             hEPDrawPluss[wtrk-1][wppt-1]        = new TH2D(Form("hEPDrawPlus_trk_%d_ppt_%d",wtrk,wppt)  ,Form("hEPDrawPlus_trk_%d_ppt_%d",wtrk,wppt)  , EPD_xb   , EPD_xlo, EPD_xhi , EPD_yb      , EPD_ylo    , EPD_yhi);
 
-            hRawDPhi[wtrk-1][wppt-1]            = new TH1D(Form("hRawDPhi_trk_%d_ppt_%d",wtrk,wppt) ,Form("hRawDPhi_trk_%d_ppt_%d",wtrk,wppt) , 150,  -2.5*PI, 2.5*PI);
-            hRawDEta[wtrk-1][wppt-1]            = new TH1D(Form("hRawDEta_trk_%d_ppt_%d",wtrk,wppt) ,Form("hRawDEta_trk_%d_ppt_%d",wtrk,wppt) , 180,  -1.5*etabound, 1.5*etabound);
+            hRawDPhi[wtrk-1][wppt-1]            = new TH1D(Form("hRawDPhi_trk_%d_ppt_%d",wtrk,wppt) ,Form("hRawDPhi_trk_%d_ppt_%d",wtrk,wppt) , 150,  -0.6*TMath::Pi(), 1.6*TMath::Pi());
+            hRawDEta[wtrk-1][wppt-1]            = new TH1D(Form("hRawDEta_trk_%d_ppt_%d",wtrk,wppt) ,Form("hRawDEta_trk_%d_ppt_%d",wtrk,wppt) , 180,  -30*EtaBW, 30*EtaBW);
 
             hDau_Kin_WRTJ_Phi[wtrk-1][wppt-1]   = new TH1D( Form("hRotPhi_trk_%d_ppt_%d",wtrk,wppt)   , Form("hRotPhi_trk_%d_ppt_%d",wtrk,wppt)    , bin2 , LB2pi , HB2pi);
             hDau_Kin_WRTJ_Pt[wtrk-1][wppt-1]    = new TH1D( Form("hRotPt_trk_%d_ppt_%d",wtrk,wppt)    , Form("hRotPt_trk_%d_ppt_%d",wtrk,wppt)     , bin2 , LB0   , HB20);
@@ -210,7 +214,7 @@ void MyClass::Loop(int job){
             hDau_Kin_Theta[wtrk-1][wppt-1]      = new TH1D( Form("hTheta_trk_%d_ppt_%d",wtrk,wppt)    ,  Form("hTheta_trk_%d_ppt_%d",wtrk,wppt)    , bin2 , LB0   , HB15pi);
             hDau_Kin_Eta[wtrk-1][wppt-1]        = new TH1D( Form("hEta_trk_%d_ppt_%d",wtrk,wppt)      ,  Form("hEta_trk_%d_ppt_%d",wtrk,wppt)      , bin_Eta , low_Eta_Bin   , high_Eta_Bin);
 
-            hdNdEvsPT[wtrk-1][wppt-1]      = new TH2D(Form("hdNdEvsPT_trk_%d_ppt_%d",wtrk,wppt) ,Form("dNdEvsPT_trk_%d_ppt_%d",wtrk,wppt)              , bin_WRTJ_Eta , low_WRTJ_Eta_Bin   , high_WRTJ_Eta_Bin, bin100 , LB0 , HB15);
+            hdNdEvsPT[wtrk-1][wppt-1]      = new TH2D(Form("hdNdEvsPT_trk_%d_ppt_%d",wtrk,wppt) ,Form("dNdEvsPT_trk_%d_ppt_%d",wtrk,wppt)              , bin_WRTJ_Eta , low_WRTJ_Eta_Bin   , high_WRTJ_Eta_Bin, bin100 , LB0 , EPD_yhi);
             hdNdE[wtrk-1][wppt-1]          = new TH1D(Form("hdNdE_trk_%d_ppt_%d",wtrk,wppt) ,Form("hdNdE_trk_%d_ppt_%d",wtrk,wppt)                         , bin_WRTJ_Eta , low_WRTJ_Eta_Bin   , high_WRTJ_Eta_Bin);
         }
     }
@@ -227,17 +231,27 @@ void MyClass::Loop(int job){
         Long64_t nentries = fChain->GetEntriesFast();
         cout<<"Total Entries is:"<<endl;
         cout<< nentries <<endl;
+
+
         //Main loops
         for (Long64_t ievent=0; ievent <nentries; ievent ++){
 
+
             timer.StartSplit("Loading Events");
+
             Long64_t jevent = LoadTree(ievent);
             nb = fChain->GetEntry(ievent);   nbytes += nb;
             //if(ievent%1000==0) cout<< ievent << "/" << nentries  <<endl;
+
             timer.StartSplit("Event Selection");
 
-            if(!F_eventpass(jetPt, jetN, jetPtCut)) continue;
+            if(!F_eventpass(jetPt, jetN, jetPtCut)){
+            hEvent_Fail->Fill(1);
+            continue;
+            }
             hEvent_Pass->Fill(1);
+
+
 
             timer.StartSplit("Jet Selection");
             for(int ijet=0; ijet<jetN; ijet++){
@@ -248,21 +262,29 @@ void MyClass::Loop(int job){
                     if((*dau_chg)[ijet][XXtrk] == 0) continue;
                     Nmult=Nmult+1;
                 }
-                if(Nmult < trackbinbounds[0]) continue;
-                if( !F_jetpass(jetEta, jetPt, ijet, jetPtCut)) continue;
+                if(Nmult < trackbinbounds[0]){ 
+                hMult_Fail->Fill(Nmult);
+                continue;
+                }
+                if( !F_jetpass(jetEta, jetPt, ijet, jetPtCut)){
+                hJet_Fail->Fill(Nmult);
+                continue;
+                }
 
                 int tkBool[trackbin] = {0};
                 for(int i = 0; i < trackbin; i++){
                     if(Nmult >= trackbinbounds[i]){
                         tkBool[i] = 1;
-                        hPass_Trig_Jet[i]   ->Fill(1);
+                        hJet_Pass           ->Fill(i);
                         hJet_Kin_Eta[i]     ->Fill((  *jetEta)[ijet]);
                         hJet_Kin_Phi[i]     ->Fill((  *jetPhi)[ijet]);
-                        hN_ChgDAUvsJPT[i]   ->Fill(Nmult, (  *jetPhi)[ijet]);
+                        hN_ChgDAUvsJPT[i]   ->Fill(Nmult, (  *jetPt)[ijet]);
                         hN_ChgDAU[i]        ->Fill(Nmult);
-                        cout << tkBool[i] << ", ";
                     }
+                    //cout << tkBool[i] << ", ";
                 }
+                //cout << " " << endl;
+                
                 timer.StartSplit("Track Loops");
 
                 int Ntrig[trackbin][ptbin] = {0};
@@ -270,13 +292,19 @@ void MyClass::Loop(int job){
 
                 for(int  A_trk=0; A_trk < NNtrk; A_trk++ ){ 
                     if((*dau_chg)[ijet][A_trk] == 0) continue;
+
                     double jet_dau_pt    =  ptWRTJet( (double) (*jetPt)[ijet] , (double) (*jetEta)[ijet] , (double) (*jetPhi)[ijet] , (double)(*dau_pt)[ijet][A_trk] , (double)(*dau_eta)[ijet][A_trk], (double)(*dau_phi)[ijet][A_trk]);
                     if( jet_dau_pt < ptbinmin || jet_dau_pt > ptbinmax) continue; 
+
+                    //cout << "New Daughter Bool Grid" << endl;
                     for(int i = 0; i < ptbin; i++){
                         if(jet_dau_pt >= ptbinbounds_lo[i] && jet_dau_pt < ptbinbounds_hi[i]){
                             A_ptBool[A_trk][i] = 1;
-                        }
-                    }       
+                        }    
+                        //cout << A_ptBool[A_trk][i] << ", ";
+                    }
+                    //cout << "End" << endl;
+
                     for(int i = 0; i < trackbin; i++){
                         for(int j = 0; j < ptbin; j++){
                             if(tkBool[i] + A_ptBool[A_trk][j] == 2){
@@ -300,6 +328,9 @@ void MyClass::Loop(int job){
                     double jet_dau_theta = 2*ATan(Exp(-(etaWRTJet((double)(*jetPt)[ijet],(double)(*jetEta)[ijet],(double)(*jetPhi)[ijet],(double)(*dau_pt)[ijet][A_trk],(double)(*dau_eta)[ijet][A_trk],(double)(*dau_phi)[ijet][A_trk]))));
                     double jet_dau_eta   = etaWRTJet( (double) (*jetPt)[ijet] , (double) (*jetEta)[ijet] , (double) (*jetPhi)[ijet] , (double)(*dau_pt)[ijet][A_trk] , (double)(*dau_eta)[ijet][A_trk], (double)(*dau_phi)[ijet][A_trk]);
                     double jet_dau_phi   = phiWRTJet( (double) (*jetPt)[ijet] , (double) (*jetEta)[ijet] , (double) (*jetPhi)[ijet] , (double)(*dau_pt)[ijet][A_trk] , (double)(*dau_eta)[ijet][A_trk], (double)(*dau_phi)[ijet][A_trk]);
+
+                    if(jet_dau_eta <  0.86) continue;
+                    if(jet_dau_eta >  3.90) continue;
 
                     double beam_dau_theta = (*dau_theta)[ijet][A_trk];
                     double beam_dau_eta   = (*dau_eta)[ijet][A_trk];
@@ -349,13 +380,17 @@ void MyClass::Loop(int job){
                         //if((*dau_chg)[ijet][T_trk] > 0) c2 =  1;              
 
                         double T_jet_dau_eta = etaWRTJet( (double) (*jetPt)[ijet] , (double) (*jetEta)[ijet] , (double) (*jetPhi)[ijet] , (double)(*dau_pt)[ijet][T_trk] , (double)(*dau_eta)[ijet][T_trk], (double)(*dau_phi)[ijet][T_trk]);
+
+                        if(T_jet_dau_eta <  0.86) continue;
+                        if(T_jet_dau_eta >  3.90) continue;
+
                         double T_jet_dau_phi = phiWRTJet( (double) (*jetPt)[ijet] , (double) (*jetEta)[ijet] , (double) (*jetPhi)[ijet] , (double)(*dau_pt)[ijet][T_trk] , (double)(*dau_eta)[ijet][T_trk], (double)(*dau_phi)[ijet][T_trk]);
 
-                        double deltaEta = jet_dau_eta - T_jet_dau_eta;
-                        double deltaPhi = jet_dau_phi - T_jet_dau_phi;
+                        double deltaEta = (jet_dau_eta - T_jet_dau_eta);
+                        double deltaPhi = (TMath::ACos(TMath::Cos(jet_dau_phi - T_jet_dau_phi)));
 
-                        if(deltaPhi<0) deltaPhi+=2*PI;
-                        if(deltaPhi>1.5*PI) deltaPhi -= 2*PI;
+                        //if(deltaPhi<0) deltaPhi+=2*PI;
+                        //if(deltaPhi>1.5*PI) deltaPhi -= 2*PI;
 
                         //T_ptBool[ptbin]    = {0};
                         //for(int i = 0; i < ptbin; i++){
@@ -368,7 +403,7 @@ void MyClass::Loop(int job){
                             for(    int j = 0; j < ptbin;    j++){
                                     if(tkBool[i] + A_ptBool[A_trk][j] + A_ptBool[T_trk][j] == 3){
 
-                                        hPairs->Fill(j,i);
+                                        hPairs->Fill(i,j);
 
                                         hRawDPhi[i][j]->Fill(deltaPhi, 1./Ntrig[i][j]);
                                         hRawDEta[i][j]->Fill(deltaEta, 1./Ntrig[i][j]);
@@ -377,6 +412,10 @@ void MyClass::Loop(int job){
                                         hSignal[i][j]->Fill(-deltaEta, deltaPhi, 1./Ntrig[i][j]);
                                         hSignal[i][j]->Fill(deltaEta, -deltaPhi, 1./Ntrig[i][j]);
                                         hSignal[i][j]->Fill(-deltaEta, -deltaPhi, 1./Ntrig[i][j]); 
+
+                                        hSignal[i][j]->Fill( deltaEta,2*TMath::Pi() - deltaPhi, 1./Ntrig[i][j]);
+                                        hSignal[i][j]->Fill(-deltaEta,2*TMath::Pi() - deltaPhi, 1./Ntrig[i][j]);
+
                                 }
                             }
                         }
@@ -390,13 +429,14 @@ void MyClass::Loop(int job){
     timer.StartSplit("EndJob");
 
     // BACKGROUND FOLD
-    int backMult =5;
+    int backMult =10;
     for(int wtrk = 1; wtrk < trackbin+1; wtrk++){
         for(int wppt = 1; wppt < ptbin+1; wppt++){
             //cout << "ppt is " << wppt << " and trk is " << wtrk << endl;
 
-            long int NENT =  hSignal[wtrk-1][wppt-1]->GetEntries();
-            long int XENT =  1 + floor((1+sqrt(1+(backMult*8*NENT)))/2);
+            long int NENT =  hPairs->GetBinContent(wtrk, wppt);
+
+            long int XENT =  ((1+floor(sqrt(1+(4*2*backMult*NENT))))/2) ;
             //Nent is the number of pairs in the signal which we will try to 10x
             //Xent is the number of pseudoparticles requried such that when we build the pairs nCp = Xent CHOOSE 2 will give us 10 times as many pairs as we have in the signal histogrm.
 
@@ -413,30 +453,53 @@ void MyClass::Loop(int job){
             for(long int i = 0; i < (XENT-1); i++){
                 for(long int j = (i+1); j < XENT; j++){
 
-                    double WdeltaEta = A_ETA[i]-A_ETA[j];
-                    double WdeltaPhi = A_PHI[i]-A_PHI[j];
+                    double WdeltaEta = (A_ETA[i]-A_ETA[j]);
+                    double WdeltaPhi = (TMath::ACos(TMath::Cos(A_PHI[i]-A_PHI[j])));
 
-                    if(WdeltaPhi<0) WdeltaPhi+=2*PI;
-                    if(WdeltaPhi>1.5*PI) WdeltaPhi -= 2*PI;
+                    //if(WdeltaPhi<0) WdeltaPhi+=2*PI;
+                    //if(WdeltaPhi>1.5*PI) WdeltaPhi -= 2*PI;
 
                     hBckrnd[wtrk-1][wppt-1]->Fill(WdeltaEta, WdeltaPhi, 1./XENT);
                     hBckrnd[wtrk-1][wppt-1]->Fill(-WdeltaEta, WdeltaPhi, 1./XENT);
                     hBckrnd[wtrk-1][wppt-1]->Fill(WdeltaEta, -WdeltaPhi, 1./XENT);
                     hBckrnd[wtrk-1][wppt-1]->Fill(-WdeltaEta, -WdeltaPhi, 1./XENT);
+
+                    hBckrnd[wtrk-1][wppt-1]->Fill(WdeltaEta, 2*TMath::Pi() - WdeltaPhi, 1./XENT);
+                    hBckrnd[wtrk-1][wppt-1]->Fill(-WdeltaEta,2*TMath::Pi() - WdeltaPhi, 1./XENT);
+
                 }
             }
-            cout << "***" << endl;
-            cout << "hSig ent are: " << NENT << " ... and hBack ent are: " << hBckrnd[wtrk-1][wppt-1]->GetEntries() << endl;
-            cout << "***" << endl;
+            //cout << "***" << endl;
+            //cout << "Ratio of fills: " << (hBckrnd[wtrk-1][wppt-1]->GetEntries())/(hSignal[wtrk-1][wppt-1]->GetEntries()) << "  Also: hSig ent are: " << hSignal[wtrk-1][wppt-1]->GetEntries()  << " ... and hBack ent are: " << hBckrnd[wtrk-1][wppt-1]->GetEntries() << endl;
+            //cout << "***" << endl;
         }
     }
 
+    timer.StartSplit("Write Files");
+
     //WRITING FILES FOLD
     
-        TFile* fS_temp = new TFile(Form("src/testNew/job%d.root",job), "recreate");
+        TFile* fS_tempA = new TFile(Form("src/Full2016/Primary/Primary_job%d.root",job), "recreate");
         for(int wtrk =1; wtrk <trackbin+1; wtrk++){
+            for(int wppt =1; wppt <ptbin+1; wppt++){
+                hSignal             [wtrk-1][wppt-1]->Write(Form("hSig_%d_%d_to_%d",trackbinbounds[wtrk-1],(int)(10*ptbinbounds_lo[wppt-1]),(int)(10*ptbinbounds_hi[wppt-1])));
+                hBckrnd             [wtrk-1][wppt-1]->Write(Form("hBck_%d_%d_to_%d",trackbinbounds[wtrk-1],(int)(10*ptbinbounds_lo[wppt-1]),(int)(10*ptbinbounds_hi[wppt-1])));
+                hEPDraw             [wtrk-1][wppt-1]->Write(Form("hEPD_%d_%d_to_%d",trackbinbounds[wtrk-1],(int)(10*ptbinbounds_lo[wppt-1]),(int)(10*ptbinbounds_hi[wppt-1])));
+            }
+        } 
 
-            hPass_Trig_Jet          [wtrk-1]->Write(Form("Pass_Trig_Jet_%d",wtrk));
+    hPairs        ->Write();
+    hEvent_Pass   ->Write();
+    hJet_Pass     ->Write();
+
+    hEvent_Fail   ->Write(); 
+    hJet_Fail     ->Write();
+    hMult_Fail    ->Write();
+
+    fS_tempA->Close();
+
+        TFile* fS_tempB = new TFile(Form("src/Full2016/Secondary/Secondary_job%d.root",job), "recreate");
+        for(int wtrk =1; wtrk <trackbin+1; wtrk++){
 
             hJet_Kin_Eta            [wtrk-1]->Write(Form("hJet_Kin_Eta_%d",wtrk));
             hJet_Kin_Phi            [wtrk-1]->Write(Form("hJet_Kin_Phi_%d",wtrk));
@@ -445,10 +508,6 @@ void MyClass::Loop(int job){
             hN_ChgDAUvsJPT          [wtrk-1]->Write(Form("hN_ChgDAUvsJPT_%d",wtrk));
 
             for(int wppt =1; wppt <ptbin+1; wppt++){
-                hSignal             [wtrk-1][wppt-1]->Write(Form("hSig_%d_%d",wtrk,wppt));
-                hBckrnd             [wtrk-1][wppt-1]->Write(Form("hBck_%d_%d",wtrk,wppt));
-                hEPDraw             [wtrk-1][wppt-1]->Write(Form("hEPD_%d_%d",wtrk,wppt));
-
                 hEPDrawMinus        [wtrk-1][wppt-1]->Write(Form("hEPDrawMinus_%d_%d",wtrk,wppt));
                 hEPDrawPluss        [wtrk-1][wppt-1]->Write(Form("hEPDrawPluss_%d_%d",wtrk,wppt));
 
@@ -471,10 +530,7 @@ void MyClass::Loop(int job){
             }
         } 
 
-    hPairs        ->Write();
-    hEvent_Pass   ->Write();
-
-    fS_temp->Close();
+    fS_tempB->Close();
 
     timer.Stop();
     timer.Report();
