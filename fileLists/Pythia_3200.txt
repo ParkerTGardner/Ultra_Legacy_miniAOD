@@ -1,0 +1,10 @@
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_1.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_10.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_2.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_3.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_4.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_5.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_6.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_7.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_8.root
+/storage1/osg/stage_out/store/user/abaty/13TeVJetsMiniAOD/QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8/crab_PythiaProduction3200/201019_154201/0000/output_MC_9.root
