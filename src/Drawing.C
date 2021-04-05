@@ -21,17 +21,23 @@ using TMath::Exp;
 
 void Drawing()
 {
-    TFile *f = new TFile("SumP678J.root");
-    TH1::SetDefaultSumw2(kFALSE);
-    TH2::SetDefaultSumw2(kFALSE);
+    //TFile *f = new TFile("SumP678_full_eta.root");
+    //TFile *f = new TFile("safeSumP678.root");
+    TFile *f = new TFile("MC_SumP600.root");
+    //TFile *f = new TFile("MC_SumPHerwig.root");
 
-    const int trackbin 	= 8;
+    TH1::SetDefaultSumw2(kTRUE);
+    TH2::SetDefaultSumw2(kTRUE);
+
+    const int trackbin 	= 6;
+    const int trackbinC = 6;
     const int ptbin 	= 15;
-    const int   trackbinbounds[trackbin]    = {85,86,87,88,89,90,91,92};
+    //const int   trackbinbounds[trackbin]    = {85,86,87,88,89,90,91,92};
+    const int   trackbinbounds[trackbin]    = {85,86,87,88,89,90};
     const float ptbinbounds_lo[ptbin]       = {0,   3,  4,  5,  6, 10,  0,  0,  0,  3,  3,  5,  5, 10, 10};
     const float ptbinbounds_hi[ptbin]       = {30, 30, 30, 30, 30, 30, 10, 20, 40, 20, 40, 20, 40, 20, 40};
 
-    int ptwant 	= 6;//manually change through 13... or create a for loop that does this but then you will get a 78 canvases.
+    int ptwant 	= 4;//manually change through 13... or create a for loop that does this but then you will get a 78 canvases.
 
     int pt_lo 	= ptbinbounds_lo[ptwant-1];
     int pt_hi 	= ptbinbounds_hi[ptwant-1];
@@ -43,8 +49,11 @@ void Drawing()
     int Yscale 	= 1000;
 
     //Defining Canvas Arrays
-    TCanvas* cA[trackbin];
-    for(int i = 0; i < trackbin; i++){
+    TCanvas* c1 = new TCanvas("c1", "c1", Xscale, Yscale);
+    TCanvas* c2 = new TCanvas("c2", "c2", Xscale, Yscale);
+
+    TCanvas* cA[trackbinC];
+    for(int i = 0; i < trackbinC; i++){
         cA[i] = new TCanvas(Form("cA_%d",i),Form("cA_%d",i), Xscale, Yscale);
     }
     //TCanvas* cB[trackbin];
@@ -62,7 +71,7 @@ void Drawing()
 
     //Main Loops
     //for(int wtrk = 0; wtrk < 2; wtrk++){
-    for(int wtrk = 0; wtrk < trackbin; wtrk++){
+    for(int wtrk = 0; wtrk < trackbinC; wtrk++){
 
         cA[wtrk]->Divide(2,1);
         //cB[wtrk]->Divide(2,1);
@@ -80,6 +89,11 @@ void Drawing()
         h2->Scale(1/(hJ->GetBinContent(wtrk+1)));
         h2->Scale(1./(BW2));
 
+        c1->cd();
+        h1->DrawCopy("SURF1 FB BB");
+        c2->cd();
+        h2->DrawCopy("SURF1 FB BB");
+
         //h1->GetXaxis->SetRangeUser(-4,4)
         //h2->GetXaxis->SetRangeUser(-4,4)
 
@@ -88,7 +102,11 @@ void Drawing()
 
         int YPmax = h1->GetNbinsX();
         int YPlo = floor(0.5*YPmax+floor(2.0/BW1));
-        int YPhi = floor(0.5*YPmax+floor(3.3/BW1));
+        int YPhi = floor(0.5*YPmax+floor(4.3/BW1));
+
+        //int YPlo = 22;
+        //int YPhi = 22;
+
         /*
         cout << " *** WTRK " << wtrk << " *** " << endl;
         cout << "IN BIN: YPmax is: " 	<< YPmax
@@ -111,6 +129,9 @@ void Drawing()
             << "?"   
             << endl;
         */
+        cout << "@@@@@@@@@@@" << endl;
+        cout << "h2->GetMaximum() : ... " << h2->GetMaximum() << endl;
+        cout << "@@@@@@@@@@@" << endl;
 
         TH1D *histfit1 = (TH1D*) h1->ProjectionY("",YPlo,YPhi)->Clone();
         TH1D *histfit2 = (TH1D*) h2->ProjectionY("",YPlo,YPhi)->Clone();
@@ -138,7 +159,7 @@ void Drawing()
 
         cA[wtrk]->cd(1);
         histfit1->SetStats(kFALSE);
-        histfit1->SetTitle(Form("dPhi Profile for dEta %.2f to %.2f", YPlo*BW1-6,YPhi*BW1-6 ));
+        histfit1->SetTitle(Form("dPhi Profile for dEta %.2f to %.2f", YPlo*BW1-6.15,YPhi*BW1-6.15 ));
         histfit1->GetYaxis()->SetTitle("dN(chg) / dP per jet");
         histfit1->GetYaxis()->SetTitleOffset(1.3);
         histfit1->GetXaxis()->SetTitle("d Phi");
@@ -149,7 +170,7 @@ void Drawing()
         cA[wtrk]->SetPhi(38.0172);
         //figure out the rotation
         h1->Divide(h2);
-        h1->GetXaxis()->SetRangeUser(-2.3,2.3);
+        h1->GetXaxis()->SetRangeUser(-3.0,3.0);
         h1->SetStats(kFALSE);
         h1->SetTitle(Form("Charged Mult > %d, pt from %.2f to %.2f", trackbinbounds[wtrk], (float)pt_lo/10, (float)pt_hi/10));
 
